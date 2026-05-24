@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Admin – Anmelden{% endblock %}
+{% block body_class %}admin-login-page{% endblock %}
+
+{% block body %}
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-header">
+      <span class="header-icon">🎓</span>
+      <h1>Admin-Bereich</h1>
+      <p>Abbiball 2026 Ticketverkauf</p>
+    </div>
+
+    {% if error %}
+    <div class="error-box">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('admin.login') }}">
+      <div class="field">
+        <label for="username">Benutzername</label>
+        <input type="text" id="username" name="username" autocomplete="username" required autofocus>
+      </div>
+      <div class="field">
+        <label for="password">Passwort</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Anmelden</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

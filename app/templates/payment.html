@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}Zahlung – Abbiball 2026{% endblock %}
+
+{% block body %}
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-title">
+      <span class="header-icon">🎓</span>
+      <div>
+        <h1>Abbiball 2026</h1>
+        <p class="header-sub">Anmeldung erfolgreich</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="main-content">
+
+  <section class="card success-card">
+    <div class="success-icon">✅</div>
+    <h2>Danke, {{ payment.name }}!</h2>
+    <p>
+      Deine Anmeldung wurde erfolgreich gespeichert.
+      Bitte überweise den fälligen Betrag zeitnah, damit deine Anmeldung bestätigt werden kann.
+    </p>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <span class="summary-label">Anmeldungs-Nr.</span>
+        <span class="summary-value">#{{ payment.reg_id }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Anzahl Tickets</span>
+        <span class="summary-value">{{ payment.total_tickets }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Gesamtbetrag</span>
+        <span class="summary-value highlight">{{ payment.total_price }} €</span>
+      </div>
+    </div>
+  </section>
+
+  <h2 class="section-heading">Zahlungsoptionen</h2>
+
+  <div class="payment-grid">
+
+    {# PayPal #}
+    {% if settings.paypal_email %}
+    <div class="card payment-card">
+      <div class="payment-logo paypal-logo">PayPal</div>
+      <h3>PayPal-Überweisung</h3>
+      <p class="payment-hint">
+        Bitte überweise als <strong>Freunde &amp; Familie</strong> und gib den Verwendungszweck an.
+      </p>
+      <div class="payment-details">
+        {% if settings.paypal_name %}
+        <div class="detail-row">
+          <span class="detail-label">Name</span>
+          <span class="detail-value">{{ settings.paypal_name }}</span>
+        </div>
+        {% endif %}
+        <div class="detail-row">
+          <span class="detail-label">E-Mail</span>
+          <span class="detail-value copy-target">{{ settings.paypal_email }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Betrag</span>
+          <span class="detail-value highlight">{{ payment.total_price }} €</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Verwendungszweck</span>
+          <span class="detail-value">{{ settings.bank_reference }} #{{ payment.reg_id }}</span>
+        </div>
+      </div>
+      <button class="btn btn-outline copy-btn" data-copy="{{ settings.paypal_email }}">
+        E-Mail kopieren
+      </button>
+    </div>
+    {% endif %}
+
+    {# Banküberweisung #}
+    {% if settings.bank_iban %}
+    <div class="card payment-card">
+      <div class="payment-logo bank-logo">🏦 Bank</div>
+      <h3>Banküberweisung</h3>
+      <p class="payment-hint">
+        Bitte überweise auf folgendes Konto und gib den Verwendungszweck an.
+      </p>
+      <div class="payment-details">
+        {% if settings.bank_owner %}
+        <div class="detail-row">
+          <span class="detail-label">Kontoinhaber</span>
+          <span class="detail-value">{{ settings.bank_owner }}</span>
+        </div>
+        {% endif %}
+        <div class="detail-row">
+          <span class="detail-label">IBAN</span>
+          <span class="detail-value copy-target iban">{{ settings.bank_iban }}</span>
+        </div>
+        {% if settings.bank_bic %}
+        <div class="detail-row">
+          <span class="detail-label">BIC</span>
+          <span class="detail-value">{{ settings.bank_bic }}</span>
+        </div>
+        {% endif %}
+        <div class="detail-row">
+          <span class="detail-label">Betrag</span>
+          <span class="detail-value highlight">{{ payment.total_price }} €</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Verwendungszweck</span>
+          <span class="detail-value">{{ settings.bank_reference }} #{{ payment.reg_id }}</span>
+        </div>
+      </div>
+      <button class="btn btn-outline copy-btn" data-copy="{{ settings.bank_iban }}">
+        IBAN kopieren
+      </button>
+    </div>
+    {% endif %}
+
+    {% if not settings.paypal_email and not settings.bank_iban %}
+    <div class="card payment-card">
+      <p>Zahlungsinformationen werden in Kürze bekannt gegeben. Halte deine Anmeldungs-Nr. bereit: <strong>#{{ payment.reg_id }}</strong></p>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <div class="back-link">
+    <a href="{{ url_for('main.index') }}">← Zur Startseite</a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <p>Abbiball 2026 &mdash; Ticketverkauf</p>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      navigator.clipboard.writeText(btn.dataset.copy).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '✓ Kopiert!';
+        setTimeout(() => btn.textContent = orig, 2000);
+      });
+    });
+  });
+</script>
+{% endblock %}

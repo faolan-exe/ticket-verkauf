@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% block title %}Abbiball 2026 – Ticketverkauf{% endblock %}
+
+{% block body %}
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-title">
+      <span class="header-icon">🎓</span>
+      <div>
+        <h1>Abbiball 2026</h1>
+        <p class="header-sub">2. Runde des Ticketverkaufs</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="main-content">
+
+  {# Ticket-Status-Karte – IDs werden von SSE-JS live aktualisiert #}
+  <section class="card ticket-status-card">
+    <div id="ticket-badge" class="ticket-badge {{ 'available' if remaining > 0 else ('sold-out' if remaining == 0 else 'overbooked') }}">
+      <span id="ticket-number" class="ticket-number">{{ remaining if remaining >= 0 else sold - total }}</span>
+      <span id="ticket-label" class="ticket-label">{{ 'Tickets noch verfügbar' if remaining >= 0 else 'Anmeldungen über verfügbare Tickets' }}</span>
+    </div>
+    <div id="status-msg" class="overbook-notice{% if remaining >= 0 %} hidden{% endif %}">
+      ⚠️ Es haben sich mehr Personen angemeldet als Tickets vorhanden sind.
+      Unter allen Anmeldungen wird gelost – eine Anmeldung ist trotzdem möglich.
+    </div>
+    <div class="progress-wrap">
+      <div id="progress-bar" class="progress-bar" style="width: {{ [[(sold / total * 100)|int, 0]|max, 100]|min }}%"></div>
+    </div>
+    <p id="progress-label" class="progress-label">{{ sold }} von {{ total }} Tickets vergeben</p>
+  </section>
+
+  {# Willkommen #}
+  <section class="card welcome-card">
+    <h2>Willkommen zur 2. Runde</h2>
+    <p>
+      Diese Runde des Ticketverkaufs richtet sich an alle, die <strong>mehr als 3 Personen</strong>
+      mitbringen möchten. Bitte fülle das Formular vollständig aus.
+    </p>
+    <ul class="info-list">
+      <li>Du hast bereits ein Ticket aus Runde 1 – hier buchst du <strong>nur Begleitpersonen</strong>.</li>
+      <li>Pro Begleitperson kostet ein Ticket <strong>{{ settings.ticket_price }} €</strong>.</li>
+      <li>Die Tischnummer ist ein Wunsch und wird nicht garantiert.</li>
+      <li>Die Zahlung erfolgt per PayPal oder Banküberweisung nach der Anmeldung.</li>
+      <li>Die Anmeldung gilt erst nach Zahlungseingang als bestätigt.</li>
+    </ul>
+
+    <div class="tischplan-wrap">
+      <h3>Tischplan &amp; Sitzverteilung</h3>
+      <a href="{{ url_for('static', filename='images/tischplan.jpeg') }}" target="_blank" rel="noopener">
+        <img
+          src="{{ url_for('static', filename='images/tischplan.jpeg') }}"
+          alt="Tischplan Abbiball 2026"
+          class="tischplan-img"
+        >
+        <span class="img-hint">Zum Vergrößern klicken</span>
+      </a>
+    </div>
+  </section>
+
+  {# Formular, Ausgebucht oder Geschlossen #}
+  {% if settings.registration_open == 'true' %}
+  {% if sold_out %}
+  <section class="card closed-card" id="sold-out-card">
+    <div class="closed-icon">🎟️</div>
+    <h2>Ausgebucht</h2>
+    <p>Alle verfügbaren Tickets wurden vergeben. Eine weitere Anmeldung ist nicht mehr möglich.</p>
+  </section>
+  {% else %}
+  <section class="card form-card" id="form-card">
+    <h2>Jetzt anmelden</h2>
+    <p class="form-disclaimer">
+      * Pflichtfelder.
+    </p>
+
+    {% if errors %}
+    <div class="error-box">
+      <strong>Bitte korrigiere folgende Fehler:</strong>
+      <ul>
+        {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <form id="reg-form" action="{{ url_for('main.register') }}" method="POST" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+
+      {# ── Schritt 1: Deine Angaben ── #}
+      <div class="form-step" id="step-1">
+        <h3 class="step-heading"><span class="step-num">1</span> Deine Angaben</h3>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="registrant_name">Dein vollständiger Name *</label>
+            <input
+              type="text"
+              id="registrant_name"
+              name="registrant_name"
+              value="{{ form_data.registrant_name if form_data else '' }}"
+              placeholder="Vorname Nachname"
+              required
+              autocomplete="name"
+            >
+          </div>
+
+          <div class="field">
+            <label for="email">E-Mail-Adresse *</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value="{{ form_data.email if form_data else '' }}"
+              placeholder="deine@email.de"
+              required
+              autocomplete="email"
+            >
+          </div>
+
+          <div class="field">
+            <label for="desired_table">
+              Wunschtisch
+              <span class="label-note">(nicht garantiert)</span>
+            </label>
+            <input
+              type="number"
+              id="desired_table"
+              name="desired_table"
+              value="{{ form_data.desired_table if form_data else '' }}"
+              min="1"
+              max="50"
+              placeholder="z.B. 7"
+            >
+          </div>
+
+          <div class="field">
+            <label for="companion_count">Anzahl Begleitpersonen * <span class="label-note">(= Anzahl Tickets)</span></label>
+            <input
+              type="number"
+              id="companion_count"
+              name="companion_count"
+              value="{{ form_data.companion_count if form_data else '1' }}"
+              min="1"
+              max="20"
+              required
+            >
+          </div>
+        </div>
+
+        <div class="step-nav">
+          <button type="button" class="btn btn-primary" id="btn-to-companions">
+            Weiter zu Begleitpersonen →
+          </button>
+        </div>
+      </div>
+
+      {# ── Schritt 2: Begleitpersonen ── #}
+      <div class="form-step hidden" id="step-2">
+        <h3 class="step-heading"><span class="step-num">2</span> Begleitpersonen</h3>
+        <div id="companions-container"></div>
+
+        <div class="step-nav step-nav-split">
+          <button type="button" class="btn btn-secondary" id="btn-back">← Zurück</button>
+          <button type="submit" class="btn btn-primary btn-submit">
+            Anmeldung absenden
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </section>
+  {% endif %}
+
+  {% else %}
+  <section class="card closed-card">
+    <div class="closed-icon">🔒</div>
+    <h2>Registrierung geschlossen</h2>
+    <p>Der Ticketverkauf ist aktuell nicht geöffnet. Bitte versuche es später erneut oder wende dich an den Organisator.</p>
+  </section>
+  {% endif %}
+
+</main>
+
+<footer class="site-footer">
+  <p>Abbiball 2026 &mdash; Ticketverkauf</p>
+</footer>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/form.js') }}"></script>
+<script>
+(function () {
+  const badge       = document.getElementById('ticket-badge');
+  const numEl       = document.getElementById('ticket-number');
+  const labelEl     = document.getElementById('ticket-label');
+  const bar         = document.getElementById('progress-bar');
+  const barLabel    = document.getElementById('progress-label');
+  const statusMsg   = document.getElementById('status-msg');
+
+  if (!badge) return;
+
+  function applyUpdate(total, sold, remaining, fcfs) {
+    if (remaining > 0) {
+      badge.className = 'ticket-badge available';
+      numEl.textContent = remaining;
+      labelEl.textContent = 'Tickets noch verfügbar';
+      if (statusMsg) statusMsg.classList.add('hidden');
+    } else if (fcfs) {
+      badge.className = 'ticket-badge sold-out';
+      numEl.textContent = '0';
+      labelEl.textContent = 'Ausgebucht';
+      if (statusMsg) statusMsg.classList.add('hidden');
+      // Formular live sperren wenn gerade ausgebucht wurde
+      const formCard = document.getElementById('form-card');
+      const soldOutCard = document.getElementById('sold-out-card');
+      if (formCard && !soldOutCard) {
+        formCard.innerHTML = '<div class="closed-icon">🎟️</div><h2>Ausgebucht</h2><p>Alle verfügbaren Tickets wurden soeben vergeben.</p>';
+        formCard.className = 'card closed-card';
+      }
+    } else {
+      badge.className = 'ticket-badge overbooked';
+      numEl.textContent = sold - total;
+      labelEl.textContent = 'Anmeldungen über verfügbare Tickets';
+      if (statusMsg) statusMsg.classList.remove('hidden');
+    }
+    const pct = Math.min(Math.max(Math.round(sold / total * 100), 0), 100);
+    bar.style.width = pct + '%';
+    barLabel.textContent = sold + ' von ' + total + ' Tickets vergeben';
+  }
+
+  const src = new EventSource('{{ url_for("main.ticket_count_stream") }}');
+  src.onmessage = function (e) {
+    const d = JSON.parse(e.data);
+    applyUpdate(d.total, d.sold, d.remaining, d.fcfs);
+  };
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% block title %}Admin-Dashboard – Abbiball 2026{% endblock %}
+{% block body_class %}admin-page{% endblock %}
+
+{% block body %}
+<header class="admin-header">
+  <div class="admin-header-inner">
+    <span class="admin-title">🎓 Abbiball 2026 – Admin</span>
+    <div class="admin-header-right">
+      <span class="admin-user">{{ session.admin_username }}</span>
+      <a href="{{ url_for('admin.logout') }}" class="btn btn-secondary btn-sm">Abmelden</a>
+    </div>
+  </div>
+</header>
+
+<div class="admin-content">
+
+  {# ── Statistiken ── #}
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-value">{{ registrations|length }}</span>
+      <span class="stat-label">Anmeldungen</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ sold }}</span>
+      <span class="stat-label">Tickets verkauft</span>
+    </div>
+    <div class="stat-card {% if remaining < 0 %}stat-warn{% elif remaining == 0 %}stat-danger{% else %}stat-ok{% endif %}">
+      <span class="stat-value">{{ remaining }}</span>
+      <span class="stat-label">Verbleibend (von {{ total }})</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ sold * settings.ticket_price|int }} €</span>
+      <span class="stat-label">Umsatz (Soll)</span>
+    </div>
+  </div>
+
+  {# ── Registrierung-Toggle ── #}
+  <div class="card action-card">
+    <div class="action-row">
+      <div>
+        <h3>Registrierung</h3>
+        <p>
+          Status:
+          {% if settings.registration_open == 'true' %}
+            <span class="badge badge-open">Offen</span>
+          {% else %}
+            <span class="badge badge-closed">Geschlossen</span>
+          {% endif %}
+        </p>
+      </div>
+      <form method="POST" action="{{ url_for('admin.toggle_registration') }}">
+        {% if settings.registration_open == 'true' %}
+        <button type="submit" class="btn btn-danger"
+          onclick="return confirm('Registrierung wirklich schließen?')">
+          🔒 Registrierung schließen
+        </button>
+        {% else %}
+        <button type="submit" class="btn btn-success"
+          onclick="return confirm('Registrierung wirklich öffnen?')">
+          🔓 Registrierung öffnen
+        </button>
+        {% endif %}
+      </form>
+    </div>
+    <div class="action-row">
+      <div>
+        <h3>Modus: First Come, First Serve</h3>
+        <p>
+          Status:
+          {% if settings.fcfs_block_enabled == 'true' %}
+            <span class="badge badge-open">Aktiv – neue Anmeldungen werden bei Ausverkauf blockiert</span>
+          {% else %}
+            <span class="badge badge-closed">Inaktiv – Verlosungsmodus (Überbuchen möglich)</span>
+          {% endif %}
+        </p>
+      </div>
+      <form method="POST" action="{{ url_for('admin.toggle_fcfs') }}">
+        {% if settings.fcfs_block_enabled == 'true' %}
+        <button type="submit" class="btn btn-secondary"
+          onclick="return confirm('Auf Verlosungsmodus wechseln? Überbuchen wird dann erlaubt.')">
+          🎲 Auf Verlosung umstellen
+        </button>
+        {% else %}
+        <button type="submit" class="btn btn-primary"
+          onclick="return confirm('First Come, First Serve aktivieren? Anmeldungen werden bei Ausverkauf blockiert.')">
+          ⚡ FCFS aktivieren
+        </button>
+        {% endif %}
+      </form>
+    </div>
+    <div class="action-row">
+      <div>
+        <h3>Excel-Export</h3>
+        <p>Alle Anmeldungen als Excel-Datei herunterladen.</p>
+      </div>
+      <a href="{{ url_for('admin.export') }}" class="btn btn-secondary">📥 Exportieren</a>
+    </div>
+    <div class="action-row">
+      <div>
+        <h3>Alle Anmeldungen löschen</h3>
+        <p>Löscht sämtliche Anmeldungen unwiderruflich. Nur im Notfall verwenden.</p>
+      </div>
+      <form method="POST" action="{{ url_for('admin.delete_all_registrations') }}">
+        <button type="submit" class="btn btn-danger"
+          onclick="return confirm('ACHTUNG: Alle {{ registrations|length }} Anmeldungen werden unwiderruflich gelöscht. Wirklich fortfahren?')">
+          🗑 Alle löschen
+        </button>
+      </form>
+    </div>
+  </div>
+
+  {# ── Einstellungen ── #}
+  <details class="card settings-card">
+    <summary><h3>⚙️ Einstellungen</h3></summary>
+    <form method="POST" action="{{ url_for('admin.update_settings') }}" class="settings-form">
+      <div class="settings-grid">
+
+        <div class="settings-group">
+          <h4>Ticketpreis &amp; Kapazität</h4>
+          <div class="field">
+            <label>Preis pro Ticket (€)</label>
+            <input type="number" name="ticket_price" value="{{ settings.ticket_price }}" min="1">
+          </div>
+          <div class="field">
+            <label>Gesamtzahl verfügbarer Tickets</label>
+            <input type="number" name="total_tickets" value="{{ settings.total_tickets }}" min="1">
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h4>PayPal</h4>
+          <div class="field">
+            <label>Name des Empfängers</label>
+            <input type="text" name="paypal_name" value="{{ settings.paypal_name }}">
+          </div>
+          <div class="field">
+            <label>PayPal-E-Mail</label>
+            <input type="email" name="paypal_email" value="{{ settings.paypal_email }}">
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h4>Bankverbindung</h4>
+          <div class="field">
+            <label>Kontoinhaber</label>
+            <input type="text" name="bank_owner" value="{{ settings.bank_owner }}">
+          </div>
+          <div class="field">
+            <label>IBAN</label>
+            <input type="text" name="bank_iban" value="{{ settings.bank_iban }}" placeholder="DE00 0000 0000 0000 0000 00">
+          </div>
+          <div class="field">
+            <label>BIC</label>
+            <input type="text" name="bank_bic" value="{{ settings.bank_bic }}">
+          </div>
+          <div class="field">
+            <label>Verwendungszweck-Präfix</label>
+            <input type="text" name="bank_reference" value="{{ settings.bank_reference }}">
+          </div>
+        </div>
+
+      </div>
+      <div class="settings-save">
+        <button type="submit" class="btn btn-primary">Einstellungen speichern</button>
+      </div>
+    </form>
+  </details>
+
+  {# ── Anmeldungstabelle ── #}
+  <div class="card table-card">
+    <div class="table-header">
+      <h3>Anmeldungen ({{ registrations|length }})</h3>
+      <input type="text" id="search-input" placeholder="Suchen…" class="search-input">
+    </div>
+
+    {% if registrations %}
+    <div class="table-wrap">
+      <table class="reg-table" id="reg-table">
+        <thead>
+          <tr>
+            <th>Nr.</th>
+            <th>Datum</th>
+            <th>Name</th>
+            <th>E-Mail</th>
+            <th>Tisch</th>
+            <th>Tickets</th>
+            <th>Betrag</th>
+            <th>Zahlung</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reg in registrations %}
+          {% set ticket_total = reg.total_tickets * settings.ticket_price|int %}
+          <tr class="reg-row" data-search="{{ reg.registrant_name }} {{ reg.email }}">
+            <td>#{{ reg.id }}</td>
+            <td class="date-cell">{{ reg.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+            <td><strong>{{ reg.registrant_name }}</strong></td>
+            <td><a href="mailto:{{ reg.email }}">{{ reg.email }}</a></td>
+            <td>{{ reg.desired_table or '–' }}</td>
+            <td>{{ reg.total_tickets }}</td>
+            <td>{{ ticket_total }} €</td>
+            <td>
+              <form method="POST" action="{{ url_for('admin.toggle_payment', reg_id=reg.id) }}">
+                <button type="submit" class="btn btn-sm {% if reg.payment_confirmed %}btn-success{% else %}btn-outline{% endif %}">
+                  {% if reg.payment_confirmed %}✓ Bestätigt{% else %}✗ Ausstehend{% endif %}
+                </button>
+              </form>
+            </td>
+            <td class="actions-cell">
+              <button class="btn btn-sm btn-outline toggle-persons" data-id="{{ reg.id }}">Details</button>
+              <form method="POST" action="{{ url_for('admin.delete_registration', reg_id=reg.id) }}" style="display:inline">
+                <button type="submit" class="btn btn-sm btn-danger"
+                  onclick="return confirm('Anmeldung #{{ reg.id }} ({{ reg.registrant_name }}) wirklich löschen?')">
+                  🗑
+                </button>
+              </form>
+            </td>
+          </tr>
+          <tr class="persons-row hidden" id="persons-{{ reg.id }}">
+            <td colspan="9">
+              <table class="persons-table">
+                <thead>
+                  <tr>
+                    <th>Typ</th>
+                    <th>Name</th>
+                    <th>Alter</th>
+                    <th>Essen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for person in reg.persons %}
+                  <tr>
+                    <td>
+                      {% if person.is_registrant %}
+                        <span class="badge badge-registrant">Anmelder</span>
+                      {% else %}
+                        <span class="badge badge-companion">Begleitung</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ person.name }}</td>
+                    <td>{{ 'Ü18' if person.is_over_18 else 'U18' }}</td>
+                    <td>{{ '🥗 Vegetarisch' if person.food_preference == 'vegetarian' else '🥩 Fleisch' }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="no-data">Noch keine Anmeldungen vorhanden.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <p>Abbiball 2026 Admin-Bereich</p>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}
