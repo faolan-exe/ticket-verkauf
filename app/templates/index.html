@@ -58,6 +58,64 @@
         <span class="img-hint">Zum Vergrößern klicken</span>
       </a>
     </div>
+
+    <div class="tisch-uebersicht-wrap">
+      <h3>Buchungen pro Tisch <span class="live-dot" title="Wird alle 15 Sekunden aktualisiert"></span></h3>
+      <div class="table-wrap">
+        <table class="tisch-table">
+          <thead>
+            <tr>
+              <th>Tisch Nr.</th>
+              <th>Frei zu Beginn</th>
+              <th>Buchungen</th>
+              <th>Noch frei</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-tisch="1"  data-capacity="5" ><td>1</td> <td>5</td> <td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="2"  data-capacity="0" class="tisch-row-voll"><td>2</td> <td>0</td><td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="3"  data-capacity="0" class="tisch-row-voll"><td>3</td> <td>0</td><td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="4"  data-capacity="0" class="tisch-row-voll"><td>4</td> <td>0</td><td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="5"  data-capacity="0" class="tisch-row-voll"><td>5</td> <td>0</td><td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="6"  data-capacity="0" class="tisch-row-voll"><td>6</td> <td>0</td><td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="7"  data-capacity="1" ><td>7</td> <td>1</td> <td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="8"  data-capacity="6" ><td>8</td> <td>6</td> <td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="9"  data-capacity="6" ><td>9</td> <td>6</td> <td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="10" data-capacity="1" ><td>10</td><td>1</td> <td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="11" data-capacity="1" ><td>11</td><td>1</td> <td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="12" data-capacity="1" ><td>12</td><td>1</td> <td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="13" data-capacity="2" ><td>13</td><td>2</td> <td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="14" data-capacity="0" class="tisch-row-voll"><td>14</td><td>0</td><td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="15" data-capacity="1" ><td>15</td><td>1</td> <td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="16" data-capacity="2" ><td>16</td><td>2</td> <td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="17" data-capacity="2" ><td>17</td><td>2</td> <td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="18" data-capacity="0" class="tisch-row-voll"><td>18</td><td>0</td><td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="19" data-capacity="1" ><td>19</td><td>1</td> <td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="20" data-capacity="0" class="tisch-row-voll"><td>20</td><td>0</td><td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="21" data-capacity="1" ><td>21</td><td>1</td> <td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="22" data-capacity="0" class="tisch-row-voll"><td>22</td><td>0</td><td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="23" data-capacity="2" ><td>23</td><td>2</td> <td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="24" data-capacity="0" class="tisch-row-voll"><td>24</td><td>0</td><td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="25" data-capacity="0" class="tisch-row-voll"><td>25</td><td>0</td><td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="26" data-capacity="0" class="tisch-row-voll"><td>26</td><td>0</td><td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+            <tr data-tisch="27" data-capacity="18"><td>27</td><td>18</td><td class="tisch-belegt">–</td><td class="tisch-frei">–</td></tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3"><strong>Insgesamt noch frei</strong></td>
+              <td id="tisch-total-frei"><strong>–</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="tisch-last-updated" id="tisch-last-updated">Wird geladen…</p>
+      <p class="snapshot-notice">
+        ⚠️ Diese Zahlen zeigen die <strong>Anzahl der Buchungen, die diesen Tisch gewünscht haben</strong>
+        Auch wenn hier noch Plätze als verfügbar angezeigt werden,
+        ist das <strong>keine Garantie</strong> – jemand kann im selben Augenblick dasselbe buchen.
+        Die Tischnummer bleibt ein unverbindlicher Wunsch. Im Falle, dass mehr Personen einen Tisch wollen als Plätze vorhanden sind, bekommt die schnellere Person den Tisch.
+      </p>
+    </div>
   </section>
 
   {# Formular, Ausgebucht oder Geschlossen #}
@@ -190,6 +248,47 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/form.js') }}"></script>
+<script>
+(function () {
+  const rows = document.querySelectorAll('[data-tisch]');
+  const totalEl = document.getElementById('tisch-total-frei');
+  const lastUpdatedEl = document.getElementById('tisch-last-updated');
+
+  const START_TOTAL = Array.from(rows).reduce(function (s, r) {
+    return s + parseInt(r.dataset.capacity, 10);
+  }, 0);
+
+  function applyBookings(bookings, totalBooked) {
+    rows.forEach(function (row) {
+      const nr = parseInt(row.dataset.tisch, 10);
+      const cap = parseInt(row.dataset.capacity, 10);
+      const booked = bookings[nr] || 0;
+      const frei = Math.max(cap - booked, 0);
+      row.querySelector('.tisch-belegt').textContent = booked;
+      row.querySelector('.tisch-frei').textContent = frei;
+      row.classList.toggle('tisch-row-free', frei > 0);
+    });
+    const totalFrei = Math.max(START_TOTAL - totalBooked, 0);
+    if (totalEl) totalEl.innerHTML = '<strong>' + totalFrei + '</strong>';
+    if (lastUpdatedEl) {
+      const now = new Date();
+      lastUpdatedEl.textContent = 'Zuletzt aktualisiert: ' + now.toLocaleTimeString('de-DE');
+    }
+  }
+
+  function fetchTableCounts() {
+    fetch('{{ url_for("main.table_counts") }}')
+      .then(function (r) { return r.json(); })
+      .then(function (d) { applyBookings(d.bookings, d.total_booked); })
+      .catch(function () {
+        if (lastUpdatedEl) lastUpdatedEl.textContent = 'Aktualisierung fehlgeschlagen.';
+      });
+  }
+
+  fetchTableCounts();
+  setInterval(fetchTableCounts, 15000);
+})();
+</script>
 <script>
 (function () {
   const badge       = document.getElementById('ticket-badge');

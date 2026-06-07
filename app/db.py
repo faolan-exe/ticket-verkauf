@@ -63,6 +63,21 @@ def set_setting(key: str, value: str) -> None:
             cur.execute("UPDATE settings SET value = %s WHERE key = %s", (value, key))
 
 
+def get_table_bookings() -> dict[int, int]:
+    """Returns {table_nr: total_tickets_wished} for all tables that have registrations."""
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT desired_table, SUM(total_tickets)
+                FROM registrations
+                WHERE desired_table IS NOT NULL
+                GROUP BY desired_table
+                """
+            )
+            return {int(row[0]): int(row[1]) for row in cur.fetchall()}
+
+
 def get_ticket_counts() -> tuple[int, int, int]:
     """Returns (total_available, tickets_sold, remaining)."""
     with get_conn() as conn:
@@ -132,10 +147,8 @@ def create_registration(
             fcfs = cur.fetchone()[0].lower() == "true"
 
             if fcfs:
-                # Serialize ticket-count check with advisory lock on the registrations table
-                cur.execute(
-                    "SELECT COALESCE(SUM(total_tickets), 0) FROM registrations FOR UPDATE"
-                )
+                cur.execute("LOCK TABLE registrations IN SHARE ROW EXCLUSIVE MODE")
+                cur.execute("SELECT COALESCE(SUM(total_tickets), 0) FROM registrations")
                 sold = int(cur.fetchone()[0])
                 cur.execute("SELECT value FROM settings WHERE key = 'total_tickets'")
                 total = int(cur.fetchone()[0])

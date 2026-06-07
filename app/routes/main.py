@@ -1,7 +1,8 @@
 import json
 from flask import Blueprint, Response, abort, redirect, render_template, request, session, url_for
 
-from ..db import create_registration, get_settings, get_ticket_counts
+from ..db import create_registration, get_settings, get_table_bookings, get_ticket_counts
+from ..email import send_confirmation
 
 bp = Blueprint("main", __name__)
 
@@ -53,6 +54,12 @@ def ticket_count_stream():
         mimetype="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
+
+
+@bp.route("/api/table-counts")
+def table_counts():
+    _, sold, _ = get_ticket_counts()
+    return {"bookings": get_table_bookings(), "total_booked": sold}
 
 
 @bp.route("/register", methods=["POST"])
@@ -147,12 +154,23 @@ def register():
         raise
 
     price = int(settings.get("ticket_price", 60))
+    total_price = companion_count * price
     session["payment"] = {
         "reg_id": reg_id,
         "name": registrant_name,
         "total_tickets": companion_count,
-        "total_price": companion_count * price,
+        "total_price": total_price,
     }
+
+    send_confirmation(
+        to_email=email,
+        registrant_name=registrant_name,
+        reg_id=reg_id,
+        total_tickets=companion_count,
+        total_price=total_price,
+        settings=settings,
+    )
+
     return redirect(url_for("main.payment"))
 
 
