@@ -25,12 +25,12 @@ def send_confirmation(
     total_price: int,
     settings: dict,
 ) -> None:
-    reference = f"{settings.get('bank_reference', 'Abbiball Ticket')} #{reg_id}"
+    reference = f"{settings.get('bank_reference', 'Abiball Ticket')} #{reg_id}"
 
     lines = [
         f"Hallo {registrant_name},",
         "",
-        "deine Anmeldung für den Abbiball 2026 wurde erfolgreich gespeichert.",
+        "deine Anmeldung für den Abiball 2026 wurde erfolgreich gespeichert.",
         "",
         "────────────────────────────────",
         f"Anmeldungs-Nr.: #{reg_id}",
@@ -71,11 +71,11 @@ def send_confirmation(
         "Die Anmeldung gilt erst nach Zahlungseingang als bestätigt.",
         "",
         "Viele Grüße,",
-        "Das Abbiball-Team",
+        "Das Abiball-Team",
     ]
 
     msg = MIMEText("\n".join(lines), "plain", "utf-8")
-    msg["Subject"] = f"Anmeldungsbestätigung Abbiball 2026 – #{reg_id}"
+    msg["Subject"] = f"Anmeldungsbestätigung Abiball 2026 – #{reg_id}"
     msg["From"] = _FROM
     msg["To"] = to_email
 

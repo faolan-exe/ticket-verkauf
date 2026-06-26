@@ -13,7 +13,7 @@ INSERT INTO settings (key, value) VALUES
     ('bank_owner',          ''),
     ('bank_iban',           ''),
     ('bank_bic',            ''),
-    ('bank_reference',      'Abbiball Ticket')
+    ('bank_reference',      'Abiball Ticket')
 ON CONFLICT (key) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS admin_users (
